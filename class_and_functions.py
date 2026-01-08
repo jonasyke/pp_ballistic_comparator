@@ -19,7 +19,7 @@ class Caliber:
     DISTANCES = [0, 100, 200, 300, 400, 500]
 
     def __init__(self, row):
-        # use .get to avoid KeyError on malformed rows
+
         self.product_code = row.get("Product_Code")
         self.cartridge = row.get("Cartridge")
         self.bullet_weight = _to_float(row.get("Bullet_Weight_gr"))
@@ -27,7 +27,6 @@ class Caliber:
         self.item_number = row.get("Item_Number")
         self.notes = row.get("Notes")
 
-        # Load velocity, energy, trajectory into dictionaries (values may be None)
         self.velocity = {
             d: _to_float(row.get(f"Velocity_{'MUZ' if d == 0 else d}"))
             for d in self.DISTANCES
@@ -43,7 +42,6 @@ class Caliber:
             for d in self.DISTANCES
         }
 
-    # convenience methods (use .get to avoid KeyError)
     def vel(self, yards):
         return self.velocity.get(yards)
 
@@ -56,9 +54,6 @@ class Caliber:
     def __repr__(self):
         bw = f"{self.bullet_weight}gr" if self.bullet_weight is not None else "?gr"
         return f"<{self.cartridge} {bw} {self.bullet_type}>"
-
-
-### CSV Loader
 
 
 def load_calibers(ballistics_table):
@@ -99,4 +94,4 @@ def print_available_calibers(ballistics_table, columns=4):
         formatted_row = [item.ljust(col_width) for item in row_items]
         print(''.join(formatted_row))
 
-print_available_calibers("ballistics_table.csv", columns=7)
+# print_available_calibers("ballistics_table.csv", columns=7)
