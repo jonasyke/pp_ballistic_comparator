@@ -2,7 +2,6 @@ import csv
 
 
 def _to_float(value):
-    """Convert a CSV field to float or return None for empty/unparseable values."""
     if value is None:
         return None
     # strip surrounding whitespace and stray quotes
