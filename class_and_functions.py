@@ -57,40 +57,58 @@ class Caliber:
 
 def load_calibers(ballistics_table):
     calibers = []
-    with open(ballistics_table, newline='') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            calibers.append(Caliber(row))
+    try:
+        with open(ballistics_table, newline='') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                calibers.append(Caliber(row))
+    except FileNotFoundError:
+        print(f"Error: {ballistics_table} not found.")
     return calibers
 
+def get_unique_cartridge_names(caliber_objects):
+    return sorted({c.cartridge for c in caliber_objects if c.cartridge})
 
-def available_calibers(ballistics_table):
+def print_available_calibers(caliber_objects, columns=7):
+    unique_names = get_unique_cartridge_names(caliber_objects)
 
-    unique_calibers = set()
-
-    with open(ballistics_table, newline='') as csvfile:
-        reader = csv.DictReader(csvfile, delimiter=',')
-        for row in reader:
-            cartridge = row.get("Cartridge")
-            if cartridge:
-                unique_calibers.add(cartridge.strip())
-    return unique_calibers
-
-def print_available_calibers(ballistics_table, columns=4):
-    unique_calibers = sorted(available_calibers(ballistics_table))
-
-    if not unique_calibers:
+    if not unique_names:
         print("No calibers found.")
         return
-    max_length = max(len(cal) for cal in unique_calibers)
-    padding = 4
-    col_width = max_length + padding
+
+    max_length = max(len(name) for name in unique_names)
+    col_width = max_length + 4
 
     print("Available Calibers:")
+    for i in range(0, len(unique_names), columns):
+        row_items = unique_names[i:i + columns]
+        print(''.join(item.ljust(col_width) for item in row_items))
 
-    for i in range(0, len(unique_calibers), columns):
-        row_items = unique_calibers[i:i + columns]
-        formatted_row = [item.ljust(col_width) for item in row_items]
-        print(''.join(formatted_row))
+def get_available_grains(caliber_objects, target_cartridge):
+    grains = {
+        c.bullet_weight for c in caliber_objects 
+        if c.cartridge == target_cartridge and c.bullet_weight is not None
+    }
+    return sorted(list(grains))
 
-# print_available_calibers("ballistics_table.csv", columns=7)
+def print_grains_for_caliber(caliber_objects, target_cartridge):
+    grains = get_available_grains(caliber_objects, target_cartridge)
+    
+    if not grains:
+        print(f"No data found for caliber: {target_cartridge}")
+        return
+
+    formatted_grains = [f"{g}gr" for g in grains]
+    
+    print(f"\nAvailable weights for {target_cartridge}:")
+    print(", ".join(formatted_grains))
+
+def find_calibers_fuzzy(caliber_objects, search_term):
+    search_term = search_term.lower().strip()
+
+    all_names = {c.cartridge for c in caliber_objects if c.cartridge}
+
+    matches = [name for name in all_names if search_term in name.lower()]
+
+    return sorted(matches)
+
