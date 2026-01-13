@@ -3,24 +3,31 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 def plot_caliber_data(selected_objects):
-    """Generates graphs for the specifically selected Caliber objects."""
     if not selected_objects:
         return
     
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 14))
-    distances = [0, 100, 200, 300, 400, 500] # Or Caliber.DISTANCES
+    distances = [0, 100, 200, 300, 400, 500]
     
+
     for obj in selected_objects:
         label = f"{obj.cartridge} {obj.bullet_weight}gr"
         
-        # Plotting Velocity
         ax1.plot(distances, [obj.vel(d) for d in distances], marker='o', label=f'{label} (fps)')
-        
-        # Plotting Energy
         ax2.plot(distances, [obj.eng(d) for d in distances], marker='o', label=f'{label} (ft-lbs)')
-        
-        # Plotting Trajectory
         ax3.plot(distances, [obj.drop(d) for d in distances], marker='o', label=f'{label} (in)')
+
+
+    thresholds = [
+        (1500, 'red', '1500 ft-lbs (Large Game)'),
+        (1000, 'darkorange', '1000 ft-lbs (Medium Game)')
+    ]
+
+    for value, color, text_label in thresholds:
+
+        ax2.axhline(y=value, color=color, linestyle='--', linewidth=1.5, alpha=0.7)
+
+        ax2.text(5, value + 20, text_label, color=color, fontsize=9, fontweight='bold')
 
     ax1.set_title('Ballistic Comparison', fontsize=16)
     ax1.set_ylabel('Velocity (fps)')

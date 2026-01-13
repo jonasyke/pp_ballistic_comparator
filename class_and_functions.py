@@ -4,7 +4,6 @@ import csv
 def _to_float(value):
     if value is None:
         return None
-    # strip surrounding whitespace and stray quotes
     s = str(value).strip().strip('"')
     if s == "":
         return None
@@ -148,19 +147,16 @@ def collect_user_selections(caliber_objects, max_selections=4):
             print_available_calibers(caliber_objects)
             continue
 
-        # 1. Caliber Match
         matches = find_calibers_fuzzy(caliber_objects, query)
         selected_caliber = get_user_choice(matches, "caliber")
         if not selected_caliber: continue
 
-        # 2. Grain Match
         grains = get_available_grains(caliber_objects, selected_caliber)
         grain_options = [str(g) for g in grains]
         print(f"\nAvailable weights for {selected_caliber}: {', '.join(grain_options)} gr")
         
         selected_grain = get_user_choice(grain_options, "grain weight")
         
-        # 3. Finalize
         if selected_grain:
             user_selection.append((selected_caliber, selected_grain))
             print(f"\n✅ Added: {selected_caliber} - {selected_grain} gr")
